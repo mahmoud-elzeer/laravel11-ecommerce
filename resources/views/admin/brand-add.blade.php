@@ -98,6 +98,24 @@
                 $("input[name='slug']").val(StringToSlug($(this).val()));
             });
 
+            const uploadArea = $(".uploadfile");
+
+            uploadArea.on("dragover", function(e) {
+                e.preventDefault();
+            });
+
+            uploadArea.on("drop", function(e) {
+                e.preventDefault();
+
+                const files = e.originalEvent.dataTransfer.files;
+
+                if (files.length > 0) {
+                    $("#myFile")[0].files = files;
+
+                    $("#imgpreview img").attr("src", URL.createObjectURL(files[0]));
+                    $("#imgpreview").show();
+                }
+            });
         });
 
         function StringToSlug(Text) {
