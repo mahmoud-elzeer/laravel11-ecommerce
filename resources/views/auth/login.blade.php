@@ -20,7 +20,7 @@
                                 <input class="form-control form-control_gray @error('email') is-invalid @enderror "
                                     name="email" value="{{ old('email') }}" required="" autocomplete="email"
                                     autofocus="">
-                                <label for="email">Email address *</label>
+                                <label for="email">Email address</label>
                                 @error('email')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
