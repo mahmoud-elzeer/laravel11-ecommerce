@@ -6,6 +6,7 @@ use App\Models\Brand;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
 use Intervention\Image\Laravel\Facades\Image;
 use NunoMaduro\Collision\Coverage;
 use PHPUnit\Framework\Constraint\Constraint;
@@ -27,6 +28,7 @@ class AdminController extends Controller
     {
         return view('admin.brand-add');
     }
+
     public function brand_store(Request $request)
     {
         $request->validate([
@@ -40,18 +42,50 @@ class AdminController extends Controller
         $brand->slug = Str::slug($request->slug);
         $image = $request->file('image');
         $file_extension = $request->file('image')->extension();
-        $file_name = Carbon::now()->timestamp.'.'. $file_extension;
+        $file_name = Carbon::now()->timestamp . '.' . $file_extension;
         $this->GenerateBrandThumbnailImage($image, $file_name);
         $brand->image = $file_name;
         $brand->save();
-        return redirect()->route('admin.brands')->with('status','Brand has been added succesfully!');   
+        return redirect()->route('admin.brands')->with('status', 'Brand has been added succesfully!');
     }
 
-    public function GenerateBrandThumbnailImage( $image, $imageName)
+    public function brand_edit($id)
+    {
+        $brand = Brand::find($id);
+        return view('admin.brand-edit', compact('brand'));
+    }
+
+    public function brand_update(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'slug' => 'required|unique:brands,slug,' . $request->id,
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        $brand = Brand::find($request->id);
+        $brand->name = $request->name;
+        $brand->slug = Str::slug($request->slug);
+        if ($request->hasFile('image')) {
+            if (File::exists(public_path('/uploads/brands') . '/' . $brand->image)) {
+                File::delete(public_path('/uploads/brands') . '/' . $brand->image);
+            }
+            $image = $request->file('image');
+            $file_extension = $request->file('image')->extension();
+            $file_name = Carbon::now()->timestamp . '.' . $file_extension;
+            $this->GenerateBrandThumbnailImage($image, $file_name);
+            $brand->image = $file_name;
+        }
+
+        $brand->save();
+        return redirect()->route('admin.brands')->with('status', 'Brand has been updated succesfully!');
+    }
+
+    public function GenerateBrandThumbnailImage($image, $imageName)
     {
         $destinationPath = public_path('/uploads/brands');
         $img = Image::read($image->path());
-        $img->cover(124,124,"top");
-        $img->save($destinationPath.'/'.$imageName);
+        $img->scale(width: 124);
+        $img->save($destinationPath . '/' . $imageName);
     }
 }
