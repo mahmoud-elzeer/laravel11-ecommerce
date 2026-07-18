@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
+use App\Models\Category;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Laravel\Facades\Image;
-use NunoMaduro\Collision\Coverage;
-use PHPUnit\Framework\Constraint\Constraint;
 
 class AdminController extends Controller
 {
@@ -17,6 +16,8 @@ class AdminController extends Controller
     {
         return view('admin.index');
     }
+
+
 
     public function brands()
     {
@@ -43,7 +44,7 @@ class AdminController extends Controller
         $image = $request->file('image');
         $file_extension = $request->file('image')->extension();
         $file_name = Carbon::now()->timestamp . '.' . $file_extension;
-        $this->GenerateBrandThumbnailImage($image, $file_name);
+        $this->generateBrandThumbnailImage($image, $file_name);
         $brand->image = $file_name;
         $brand->save();
         return redirect()->route('admin.brands')->with('status', 'Brand has been added succesfully!');
@@ -73,7 +74,7 @@ class AdminController extends Controller
             $image = $request->file('image');
             $file_extension = $request->file('image')->extension();
             $file_name = Carbon::now()->timestamp . '.' . $file_extension;
-            $this->GenerateBrandThumbnailImage($image, $file_name);
+            $this->generateBrandThumbnailImage($image, $file_name);
             $brand->image = $file_name;
         }
 
@@ -81,7 +82,7 @@ class AdminController extends Controller
         return redirect()->route('admin.brands')->with('status', 'Brand has been updated succesfully!');
     }
 
-    public function GenerateBrandThumbnailImage($image, $imageName)
+    public function generateBrandThumbnailImage($image, $imageName)
     {
         $destinationPath = public_path('/uploads/brands');
         $img = Image::read($image->path());
@@ -97,6 +98,44 @@ class AdminController extends Controller
         }
         $brand->delete();
         return redirect()->route('admin.brands')->with('status', 'Brand has been deleted succesfully!');
+    }
+    
+      public function categories()
+    {
+        $categories = Category::orderby('id','DESC')->paginate(10);
+        return view('admin.categories', compact('categories'));
+    }
+
+      public function category_add()
+    {
+        return view('admin.category-add');
+    }
+
+      public function category_store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'slug' => 'required|unique:categories,slug',
+            'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        $category = new Category();
+        $category->name = $request->name;
+        $category->slug = Str::slug($request->slug);
+        $image = $request->file('image');
+        $file_extension = $request->file('image')->extension();
+        $file_name = Carbon::now()->timestamp . '.' . $file_extension;
+        $this->generateCategoryThumbnailImage($image, $file_name);
+        $category->image = $file_name;
+        $category->save();
+        return redirect()->route('admin.categories')->with('status', 'Category has been added succesfully!');
+    }
+    public function generateCategoryThumbnailImage($image, $imageName)
+    {
+        $destinationPath = public_path('/uploads/categories');
+        $img = Image::read($image->path());
+        $img->scale(width: 124);
+        $img->save($destinationPath . '/' . $imageName);
     }
     
 }
