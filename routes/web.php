@@ -20,6 +20,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::get('/admin',  [AdminController::class, 'index'])->name('admin.index');
+
     Route::get('/admin/brands', [AdminController::class, 'brands'])->name('admin.brands');
     Route::get('/admin/brand/add', [AdminController::class, 'add_brand'])->name('admin.brand.add');
     Route::post('/admin/brand/store', [AdminController::class, 'brand_store'])->name('admin.brand.store');
@@ -33,4 +34,6 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::get('/admin/category/edit/{id}', [AdminController::class, 'category_edit'])->name('admin.category.edit');
     Route::put('/admin/category/update', [AdminController::class, 'category_update'])->name('admin.category.update');
     Route::delete('/admin/category/{id}/delete', [AdminController::class, 'category_delete'])->name('admin.category.delete');
+    
+    Route::get('/admin/products', [AdminController::class, 'products'])->name('admin.products');
     });
