@@ -257,7 +257,7 @@ class AdminController extends Controller
         }
         $product->images = $gallery_images;
         $product->save();
-        return redirect('admin.products')->with('status', 'Product has been added successfully!');
+        return redirect(route('admin.products'))->with('status', 'Product has been added successfully!');
     }
 
     public function generateProductThumbnailImage($image, $imageName)
