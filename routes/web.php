@@ -20,10 +20,15 @@ Route::get('/shop/{product_slug}/details', [ShopController::class, 'product_deta
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add', [CartController::class, 'add_to_cart'])->name('cart.add');
+Route::put('/cart/{rowId}/increase-quantity', [CartController::class, 'increase_cart_quantity'])->name('cart.qty.increase');
+Route::put('/cart/{rowId}/decrease-quantity', [CartController::class, 'decrease_cart_quantity'])->name('cart.qty.decrease');
+Route::delete('/cart/{rowId}/remove', [CartController::class, 'remove_item'])->name('cart.item.remove');
+Route::delete('/cart/clear', [CartController::class, 'empty_cart'])->name('cart.empty');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/account-dashboard',  [UserController::class, 'index'])->name('user.index');
 });
+
 
 Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::get('/admin',  [AdminController::class, 'index'])->name('admin.index');
